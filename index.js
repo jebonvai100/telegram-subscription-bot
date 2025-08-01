@@ -397,44 +397,48 @@ bot.onText(/\/verify (.+)/, async (msg, match) => {
 
 // ✅ Expiry checker (every hour)
 setInterval(async () => {
-    if (!fs.existsSync(SUBSCRIPTIONS_FILE)) return;
+  if (!fs.existsSync(SUBSCRIPTIONS_FILE)) return;
 
-    const subscriptions = JSON.parse(fs.readFileSync(SUBSCRIPTIONS_FILE));
-    const now = new Date();
+  const subscriptions = JSON.parse(fs.readFileSync(SUBSCRIPTIONS_FILE));
+  const now = new Date();
 
-    for (const userId in subscriptions) {
-      const sub = subscriptions[userId];
-      const expiry = new Date(sub.expiry);
-      if (now > expiry && sub.active) {
-  sub.active = false;
+  for (const userId in subscriptions) {
+    const sub = subscriptions[userId];
+    const expiry = new Date(sub.expiry);
 
-  bot.sendMessage(
-    userId,
-    "⚠️ আপনার সাবস্ক্রিপশন মেয়াদ শেষ হয়ে গেছে। নতুন করে প্যাকেজ কিনুন।"
-  );
+    if (now > expiry && sub.active) {
+      sub.active = false;
 
-  try {
-    await bot.restrictChatMember(GROUP_ID, parseInt(userId), {
-      permissions: {
-        can_send_messages: false
+      bot.sendMessage(
+        userId,
+        "⚠️ আপনার সাবস্ক্রিপশন মেয়াদ শেষ হয়ে গেছে। নতুন করে প্যাকেজ কিনুন।"
+      );
+
+      try {
+        await bot.restrictChatMember(GROUP_ID, parseInt(userId), {
+          permissions: {
+            can_send_messages: false
+          }
+        });
+
+        await bot.sendMessage(
+          userId,
+          "🔇 আপনার সাবস্ক্রিপশন মেয়াদ শেষ হওয়ায় আপনি মেসেজ পাঠাতে পারবেন না। সাবস্ক্রিপশন নবায়ন করে পুনরায় অ্যাক্সেস পান।"
+        );
+      } catch (e) {
+        console.log("Mute error:", e.message);
       }
-    });
-
-    await bot.sendMessage(userId, "🔇 আপনার সাবস্ক্রিপশন মেয়াদ শেষ হওয়ায় আপনি মেসেজ পাঠাতে পারবেন না। সাবস্ক্রিপশন নবায়ন করে পুনরায় অ্যাক্সেস পান।");
-  } catch (e) {
-    console.log("Mute error:", e.message);
+    }
   }
-}
+
+  fs.writeFileSync(
+    SUBSCRIPTIONS_FILE,
+    JSON.stringify(subscriptions, null, 2)
+  );
+}, 60 * 60 * 1000); // প্রতি ১ ঘণ্টা পর চেক করবে
 
 
-    fs.writeFileSync(
-      SUBSCRIPTIONS_FILE,
-      JSON.stringify(subscriptions, null, 2),
-    );
-  }
-  
-  60 * 60 * 1000,
-); // প্রতি ১ ঘণ্টা পর চেক করবে
+
 
 app.get("/", (req, res) => {
   res.send("🤖 Telegram Bot is running...");

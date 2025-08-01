@@ -323,27 +323,7 @@ async function verifyTransaction(txhash, userId, chatId, packageType, bot) {
       chatId,
     };
 
-  // Unmute the user in group if not admin
-try {
-  const member = await bot.getChatMember(GROUP_ID, userId);
-  if (member.status !== 'administrator' && member.status !== 'creator') {
-    await bot.restrictChatMember(GROUP_ID, userId, {
-      permissions: {
-        can_send_messages: true,
-        can_send_media_messages: true,
-        can_send_other_messages: true,
-        can_add_web_page_previews: true
-      }
-    });
-  }
-} catch (error) {
-  console.error('Unmute failed:', error.message);
-}
 
-
-
-
-    
     // ✅ Save both files
     saveSubscriptions(subscriptions);
     usedTxs.push(txhash);
@@ -354,6 +334,29 @@ try {
       chatId,
       `✅ সাবস্ক্রিপশন সফলভাবে একটিভ হয়েছে!\n📦 প্যাকেজ: ${packageType}\n🗓 মেয়াদ শেষ: ${endDate.toDateString()}`,
     );
+    try {
+  const member = await bot.getChatMember(GROUP_ID, userId);
+  const isAdmin = ["administrator", "creator"].includes(member.status);
+
+  if (!isAdmin) {
+    await bot.restrictChatMember(GROUP_ID, parseInt(userId), {
+      permissions: {
+        can_send_messages: true,
+        can_send_media_messages: true,
+        can_send_polls: true,
+        can_send_other_messages: true,
+        can_add_web_page_previews: true,
+        can_change_info: false,
+        can_invite_users: true,
+        can_pin_messages: false
+      }
+    });
+
+    await bot.sendMessage(chatId, "🔓 আপনি এখন গ্রুপে মেসেজ পাঠাতে পারবেন!");
+  }
+} catch (e) {
+  console.error("Unmute Error:", e.message);
+}
     await bot.sendMessage(
       ADMIN_ID,
       `👤 নতুন সাবস্ক্রিপশন:\n🆔 User ID: ${userId}\n💸 প্যাকেজ: ${packageType}\n🔗 TxHash: ${txhash}`,

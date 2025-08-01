@@ -393,8 +393,7 @@ bot.onText(/\/verify (.+)/, async (msg, match) => {
 });
 
 // ✅ Expiry checker (every hour)
-setInterval(async
-  () => {
+setInterval(async () => {
     if (!fs.existsSync(SUBSCRIPTIONS_FILE)) return;
 
     const subscriptions = JSON.parse(fs.readFileSync(SUBSCRIPTIONS_FILE));

@@ -431,7 +431,8 @@ setInterval(async () => {
       SUBSCRIPTIONS_FILE,
       JSON.stringify(subscriptions, null, 2),
     );
-  },
+  }
+  
   60 * 60 * 1000,
 ); // প্রতি ১ ঘণ্টা পর চেক করবে
 

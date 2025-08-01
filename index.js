@@ -175,6 +175,39 @@ bot.on("callback_query", async (query) => {
   );
 });
 
+bot.on("message", async (msg) => {
+  const chatId = msg.chat.id;
+  const userId = msg.from.id;
+  const isGroup = msg.chat.type === "supergroup" || msg.chat.type === "group";
+
+  if (!isGroup) return; // শুধু গ্রুপ মেসেজ চেক করবে
+
+  const subscriptions = loadSubscriptions();
+  const sub = subscriptions[userId];
+
+  const isAdmin = await bot.getChatAdministrators(chatId)
+    .then(admins => admins.some(admin => admin.user.id === userId))
+    .catch(() => false);
+
+  const now = new Date();
+
+  if (isAdmin) return; // অ্যাডমিনদের কিছু বলবে না
+
+  if (!sub || !sub.active || new Date(sub.expiry) < now) {
+    // মিউট করে দিবে
+    await bot.restrictChatMember(chatId, userId, {
+      permissions: { can_send_messages: false },
+      until_date: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 365, // ১ বছর
+    });
+
+    await bot.sendMessage(chatId, `⛔ @${msg.from.username || "user"}, আপনার অ্যাক্টিভ সাবস্ক্রিপশন নেই, তাই আপনাকে মিউট করা হয়েছে। সাবস্ক্রিপশন নিতে /start চাপুন।`, {
+      reply_to_message_id: msg.message_id,
+    });
+  }
+});
+
+
+
 // verifyTransaction(txhash, userId, chatId, packageType
 // ✅ Load subs
 function loadSubscriptions() {
@@ -290,6 +323,27 @@ async function verifyTransaction(txhash, userId, chatId, packageType, bot) {
       chatId,
     };
 
+  // Unmute the user in group if not admin
+try {
+  const member = await bot.getChatMember(GROUP_ID, userId);
+  if (member.status !== 'administrator' && member.status !== 'creator') {
+    await bot.restrictChatMember(GROUP_ID, userId, {
+      permissions: {
+        can_send_messages: true,
+        can_send_media_messages: true,
+        can_send_other_messages: true,
+        can_add_web_page_previews: true
+      }
+    });
+  }
+} catch (error) {
+  console.error('Unmute failed:', error.message);
+}
+
+
+
+
+    
     // ✅ Save both files
     saveSubscriptions(subscriptions);
     usedTxs.push(txhash);
@@ -350,13 +404,26 @@ setInterval(
       const sub = subscriptions[userId];
       const expiry = new Date(sub.expiry);
       if (now > expiry && sub.active) {
-        sub.active = false;
-        bot.sendMessage(
-          userId,
-          "⚠️ আপনার সাবস্ক্রিপশন মেয়াদ শেষ হয়ে গেছে। নতুন করে কিনুন যেন চালু থাকে।",
-        );
+  sub.active = false;
+
+  bot.sendMessage(
+    userId,
+    "⚠️ আপনার সাবস্ক্রিপশন মেয়াদ শেষ হয়ে গেছে। নতুন করে প্যাকেজ কিনুন।"
+  );
+
+  try {
+    await bot.restrictChatMember(GROUP_ID, parseInt(userId), {
+      permissions: {
+        can_send_messages: false
       }
-    }
+    });
+
+    await bot.sendMessage(userId, "🔇 আপনার সাবস্ক্রিপশন মেয়াদ শেষ হওয়ায় আপনি মেসেজ পাঠাতে পারবেন না। সাবস্ক্রিপশন নবায়ন করে পুনরায় অ্যাক্সেস পান।");
+  } catch (e) {
+    console.log("Mute error:", e.message);
+  }
+}
+
 
     fs.writeFileSync(
       SUBSCRIPTIONS_FILE,

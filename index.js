@@ -193,7 +193,7 @@ bot.on("message", async (msg) => {
 
   if (isAdmin) return;
 
-  if (!sub  !sub.active  new Date(sub.expiry) < now) {
+  if (!sub || !sub.active || new Date(sub.expiry) < now) {
     
       
       // ইউজারের মেসেজ ডিলিট করবে

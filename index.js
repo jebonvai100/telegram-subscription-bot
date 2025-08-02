@@ -397,10 +397,10 @@ bot.onText(/\/verify (.+)/, async (msg, match) => {
   );
 
   if (!result.success) {
-    return bot.sendMessage(chatId, `❌ ${result.message}`);
+    return bot.sendMessage(chatId, ❌ ${result.message});
   }
-});
-
+}); // 👈 শেষ বন্ধ করার অংশ
+    
 // ✅ Expiry checker (every hour)
 setInterval(async () => {
   if (!fs.existsSync(SUBSCRIPTIONS_FILE)) return;
@@ -450,3 +450,4 @@ app.get("/", (req, res) => {
 
 app.listen(3000, () => {
   console.log("🌐 HTTP server running on port 3000");
+});

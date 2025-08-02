@@ -180,7 +180,7 @@ bot.on("message", async (msg) => {
   const userId = msg.from.id;
   const isGroup = msg.chat.type === "supergroup" || msg.chat.type === "group";
 
-  if (!isGroup) return; // শুধু গ্রুপ মেসেজ চেক করবে
+  if (!isGroup) return;
 
   const subscriptions = loadSubscriptions();
   const sub = subscriptions[userId];
@@ -191,17 +191,20 @@ bot.on("message", async (msg) => {
 
   const now = new Date();
 
-  if (isAdmin) return; // অ্যাডমিনদের কিছু বলবে না
+  if (isAdmin) return;
 
-  if (!sub || !sub.active || new Date(sub.expiry) < now) {
-    // মিউট করে দিবে
-    await bot.restrictChatMember(chatId, userId, {
-      permissions: { can_send_messages: false },
-      until_date: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 365, // ১ বছর
-    });
+  if (!sub  !sub.active  new Date(sub.expiry) < now) {
+    try {
+      // ইউজারের মেসেজ ডিলিট করবে
+      await bot.deleteMessage(chatId, msg.message_id);
+    } catch (e) {
+      console.log("Message delete failed:", e.message);
+    }
 
-    await bot.sendMessage(chatId, `⛔ @${msg.from.username || "user"}, আপনার অ্যাক্টিভ সাবস্ক্রিপশন নেই, তাই আপনাকে মিউট করা হয়েছে। সাবস্ক্রিপশন নিতে /start চাপুন।`, {
+    // ইউজারকে ওয়ার্নিং দিবে
+    await bot.sendMessage(chatId, ⛔ @${msg.from.username || "user"}, আপনার কোনও অ্যাক্টিভ সাবস্ক্রিপশন নেই। মেসেজ দেওয়ার অনুমতি পেতে /start চাপুন ও সাবস্ক্রিপশন কিনুন।, {
       reply_to_message_id: msg.message_id,
+      disable_notification: true
     });
   }
 });

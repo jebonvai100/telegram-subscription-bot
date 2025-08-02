@@ -397,7 +397,7 @@ bot.onText(/\/verify (.+)/, async (msg, match) => {
   );
 
   if (!result.success) {
-    return bot.sendMessage(chatId, ❌ ${result.message});
+    return bot.sendMessage(chatId, `❌ ${result.message}`);
   }
 });
 

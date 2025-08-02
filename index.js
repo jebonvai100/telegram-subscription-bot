@@ -365,7 +365,7 @@ try {
 
 await bot.sendMessage(
   ADMIN_ID,
-  👤 নতুন সাবস্ক্রিপশন:\n🆔 User ID: ${userId}\n💸 প্যাকেজ: ${packageType}\n🔗 TxHash: ${txhash}
+  `👤 নতুন সাবস্ক্রিপশন:\n🆔 User ID: ${userId}\n💸 প্যাকেজ: ${packageType}\n🔗 TxHash: ${txhash}`
 );
 
 return { success: true };

@@ -442,9 +442,7 @@ setInterval(async () => {
   );
 }, 60 * 60 * 1000); // প্রতি ১ ঘণ্টা পর চেক করবে
 
-
-
-
+// ✅ Express server (for Render)
 app.get("/", (req, res) => {
   res.send("🤖 Telegram Bot is running...");
 });

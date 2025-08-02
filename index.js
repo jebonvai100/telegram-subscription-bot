@@ -302,44 +302,44 @@ async function verifyTransaction(txhash, userId, chatId, packageType, bot) {
     }
 
     // ✅ Load subscriptions & used hashes
-    const subscriptions = loadSubscriptions();
-    const usedTxs = loadUsedTxHashes();
+const subscriptions = loadSubscriptions();
+const usedTxs = loadUsedTxHashes();
 
-    // 🔁 Check if already used
-    if (usedTxs.includes(txhash)) {
-      await bot.sendMessage(chatId, "⛔ এই TxHash আগে ব্যবহার করা হয়েছে।");
-      return { success: false, message: "⛔ TxHash ইতিমধ্যে ব্যবহৃত হয়েছে।" };
-    }
+// 🔁 Check if already used
+if (usedTxs.includes(txhash)) {
+  await bot.sendMessage(chatId, "⛔ এই TxHash আগে ব্যবহার করা হয়েছে।");
+  return { success: false, message: "⛔ TxHash ইতিমধ্যে ব্যবহৃত হয়েছে।" };
+}
 
-    // 🕒 Set duration
-    const now = new Date();
-    const endDate = new Date(now);
-    if (packageType === "monthly") endDate.setMonth(endDate.getMonth() + 1);
-    else endDate.setFullYear(endDate.getFullYear() + 1);
+// 🕒 Set duration
+const now = new Date();
+const endDate = new Date(now);
+if (packageType === "monthly") endDate.setMonth(endDate.getMonth() + 1);
+else endDate.setFullYear(endDate.getFullYear() + 1);
 
-    // ✅ Save subscription
-    subscriptions[userId] = {
-      txhash,
-      package: packageType,
-      startDate: now.toISOString(),
-      endDate: endDate.toISOString(),
-      expiry: endDate.toISOString(),
-      active: true,
-      chatId,
-    };
+// ✅ Save subscription
+subscriptions[userId] = {
+  txhash,
+  package: packageType,
+  startDate: now.toISOString(),
+  endDate: endDate.toISOString(),
+  expiry: endDate.toISOString(),
+  active: true,
+  chatId,
+};
 
+// ✅ Save both files
+saveSubscriptions(subscriptions);
+usedTxs.push(txhash);
+saveUsedTxHashes(usedTxs);
 
-    // ✅ Save both files
-    saveSubscriptions(subscriptions);
-    usedTxs.push(txhash);
-    saveUsedTxHashes(usedTxs);
+// ✅ Confirmation message
+await bot.sendMessage(
+  chatId,
+  ✅ সাবস্ক্রিপশন সফলভাবে একটিভ হয়েছে!\n📦 প্যাকেজ: ${packageType}\n🗓 মেয়াদ শেষ: ${endDate.toDateString()}
+);
 
-    // ✅ Confirmation message
-    await bot.sendMessage(
-      chatId,
-      `✅ সাবস্ক্রিপশন সফলভাবে একটিভ হয়েছে!\n📦 প্যাকেজ: ${packageType}\n🗓 মেয়াদ শেষ: ${endDate.toDateString()}`,
-    );
-    try {
+try {
   const member = await bot.getChatMember(GROUP_ID, userId);
   const isAdmin = ["administrator", "creator"].includes(member.status);
 
@@ -362,20 +362,21 @@ async function verifyTransaction(txhash, userId, chatId, packageType, bot) {
 } catch (e) {
   console.error("Unmute Error:", e.message);
 }
-    await bot.sendMessage(
-      ADMIN_ID,
-      `👤 নতুন সাবস্ক্রিপশন:\n🆔 User ID: ${userId}\n💸 প্যাকেজ: ${packageType}\n🔗 TxHash: ${txhash}`,
-    );
 
-    return { success: true };
-  } catch (error) {
-    console.error("verifyTransaction error:", error);
-    await bot.sendMessage(
-      chatId,
-      "⛔ একটি ত্রুটি ঘটেছে। দয়া করে পরে আবার চেষ্টা করুন।",
-    );
-    return { success: false, message: "⛔ একটি ত্রুটি ঘটেছে।" };
-  }
+await bot.sendMessage(
+  ADMIN_ID,
+  👤 নতুন সাবস্ক্রিপশন:\n🆔 User ID: ${userId}\n💸 প্যাকেজ: ${packageType}\n🔗 TxHash: ${txhash}
+);
+
+return { success: true };
+} catch (error) {
+  console.error("verifyTransaction error:", error);
+  await bot.sendMessage(
+    chatId,
+    "⛔ একটি ত্রুটি ঘটেছে। দয়া করে পরে আবার চেষ্টা করুন।"
+  );
+  return { success: false, message: "⛔ একটি ত্রুটি ঘটেছে।" };
+}
 }
 
 // ✅ User command (only one!)
@@ -392,11 +393,11 @@ bot.onText(/\/verify (.+)/, async (msg, match) => {
     userId,
     chatId,
     packageType,
-    bot,
+    bot
   );
 
   if (!result.success) {
-    return bot.sendMessage(chatId, `❌ ${result.message}`);
+    return bot.sendMessage(chatId, ❌ ${result.message});
   }
 });
 
@@ -450,4 +451,3 @@ app.get("/", (req, res) => {
 app.listen(3000, () => {
   console.log("🌐 HTTP server running on port 3000");
 });
-}

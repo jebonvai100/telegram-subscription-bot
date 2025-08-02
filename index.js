@@ -194,7 +194,8 @@ bot.on("message", async (msg) => {
   if (isAdmin) return;
 
   if (!sub  !sub.active  new Date(sub.expiry) < now) {
-    try {
+    
+      
       // ইউজারের মেসেজ ডিলিট করবে
       await bot.deleteMessage(chatId, msg.message_id);
     } catch (e) {

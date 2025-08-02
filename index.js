@@ -398,7 +398,7 @@ bot.onText(/\/verify (.+)/, async (msg, match) => {
 
   if (!result.success) {
     return bot.sendMessage(chatId, `❌ ${result.message}`);
-  });  
+  });
  // 👈 শেষ বন্ধ করার অংশ
     
 // ✅ Expiry checker (every hour)

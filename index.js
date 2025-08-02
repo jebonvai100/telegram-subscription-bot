@@ -205,7 +205,7 @@ bot.on("message", async (msg) => {
     // ইউজারকে ওয়ার্নিং দিবে
     await bot.sendMessage(
   chatId,
-  ⛔ @${msg.from.username || "user"}, আপনার কোন সাবস্ক্রিপশন নেই, তাই মেসেজ ডিলিট করা হয়েছে। /start চাপুন ও সাবস্ক্রিপশন নিন।,
+  `⛔ @${msg.from.username || "user"}, আপনার কোন সাবস্ক্রিপশন নেই, তাই মেসেজ ডিলিট করা হয়েছে। /start চাপুন ও সাবস্ক্রিপশন নিন।`,
   {
     reply_to_message_id: msg.message_id,
   }

@@ -203,12 +203,13 @@ bot.on("message", async (msg) => {
     }
 
     // ইউজারকে ওয়ার্নিং দিবে
-    await bot.sendMessage(chatId, ⛔ @${msg.from.username || "user"}, আপনার কোনও অ্যাক্টিভ সাবস্ক্রিপশন নেই। মেসেজ দেওয়ার অনুমতি পেতে /start চাপুন ও সাবস্ক্রিপশন কিনুন।, {
-      reply_to_message_id: msg.message_id,
-      disable_notification: true
-    });
+    await bot.sendMessage(
+  chatId,
+  ⛔ @${msg.from.username || "user"}, আপনার কোন সাবস্ক্রিপশন নেই, তাই মেসেজ ডিলিট করা হয়েছে। /start চাপুন ও সাবস্ক্রিপশন নিন।,
+  {
+    reply_to_message_id: msg.message_id,
   }
-});
+);
 
 
 

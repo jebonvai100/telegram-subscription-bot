@@ -197,7 +197,7 @@ bot.on("message", async (msg) => {
     
       
       // ইউজারের মেসেজ ডিলিট করবে
-      await bot.deleteMessage(chatId, msg.message_id);
+     try { await bot.deleteMessage(chatId, msg.message_id);
     } catch (e) {
       console.log("Message delete failed:", e.message);
     }
